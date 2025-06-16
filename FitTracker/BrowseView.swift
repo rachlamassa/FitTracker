@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Workout: Identifiable {
+struct Workouts: Identifiable {
     let id = UUID()
     let name: String
 }
@@ -18,12 +18,12 @@ struct BrowseView: View {
     @State private var search: String = ""
     @State private var browseType: String = "Exercises"
         
-    @State private var workouts: [Workout] = [
-        Workout(name: "Push Workout"),
-        Workout(name: "Pull Workout"),
-        Workout(name: "Legs"),
-        Workout(name: "HIIT"),
-        Workout(name: "Stretching")
+    @State private var workouts: [Workouts] = [
+        Workouts(name: "Push Workout"),
+        Workouts(name: "Pull Workout"),
+        Workouts(name: "Legs"),
+        Workouts(name: "HIIT"),
+        Workouts(name: "Stretching")
     ]
     
     var body: some View {

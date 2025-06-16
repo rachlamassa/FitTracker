@@ -18,12 +18,12 @@ struct CreateWorkoutView: View {
     @State private var switchMetric = false
     @State private var exerciseExists: Bool = false // temp bool
     
-    @State private var workouts: [Workout] = [
-        Workout(name: "Push Workout"),
-        Workout(name: "Pull Workout"),
-        Workout(name: "Legs"),
-        Workout(name: "HIIT"),
-        Workout(name: "Stretching")
+    @State private var workouts: [Workouts] = [
+        Workouts(name: "Push Workout"),
+        Workouts(name: "Pull Workout"),
+        Workouts(name: "Legs"),
+        Workouts(name: "HIIT"),
+        Workouts(name: "Stretching")
     ]
     
     var body: some View {
@@ -205,7 +205,7 @@ struct CreateWorkoutView: View {
         }
     }
     
-    private func deleteWorkout(_ workout: Workout) {
+    private func deleteWorkout(_ workout: Workouts) {
             if let index = workouts.firstIndex(where: { $0.id == workout.id }) {
                 workouts.remove(at: index)
             }

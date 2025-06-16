@@ -26,6 +26,11 @@ struct ExerciseDetails: Identifiable, Decodable {
     let instructions: [String]
 }
 
+struct Exercise: Identifiable, Decodable {
+    var id = UUID()
+    var exerciseDetails: ExerciseDetails
+}
+
 @MainActor
 class BrowseViewModel: ObservableObject {
     @Published var exercises: [ExerciseDetails] = []

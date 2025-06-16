@@ -17,7 +17,7 @@ struct WorkoutCard: View {
         } else if context == .browse {
             browseCardStyle
         } else {
-            createCardStyle
+            createCardStyle // for editing routines
         }
     }
     
@@ -40,7 +40,7 @@ struct WorkoutCard: View {
             } label: {
                 Text("Start Workout")
                     .fontWeight(.medium)
-                    .padding()
+                    .padding(12)
                     .frame(maxWidth: .infinity)
                     .foregroundStyle(.white)
                     .background(.black)
