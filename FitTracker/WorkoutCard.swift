@@ -52,7 +52,7 @@ struct WorkoutCard: View {
         .background(.white)
         .overlay(
             RoundedRectangle(cornerRadius: 15)
-                .stroke(.black, lineWidth: 1)
+                .stroke(Color(.systemGray4), lineWidth: 1)
         )
         .cornerRadius(15)
     }
@@ -60,7 +60,9 @@ struct WorkoutCard: View {
     private var browseCardStyle: some View {
             HStack {
                 Image(systemName: "dumbbell.fill")
-                    .font(.system(size: 36))
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 36, height: 36)
                 VStack (alignment: .leading) {
                     Text("Push")
                         .font(.system(size: 20))
@@ -73,12 +75,7 @@ struct WorkoutCard: View {
             .padding()
             .frame(maxWidth: .infinity)
             .background(.white)
-            .overlay(
-                RoundedRectangle(cornerRadius: 15)
-                    .stroke(.black, lineWidth: 1)
-            )
             .cornerRadius(15)
-            .contentShape(Rectangle())
     }
     
     private var createCardStyle: some View {
@@ -98,10 +95,6 @@ struct WorkoutCard: View {
             .padding()
             .frame(maxWidth: .infinity)
             .background(.white)
-            .overlay(
-                RoundedRectangle(cornerRadius: 15)
-                    .stroke(.black, lineWidth: 1)
-            )
             .cornerRadius(15)
     }
 }
@@ -113,5 +106,5 @@ enum WorkoutCardContext {
 }
 
 #Preview {
-    WorkoutCard(context: .create)
+    WorkoutCard(context: .home)
 }

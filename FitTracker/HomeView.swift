@@ -30,7 +30,7 @@ struct HomeView: View {
                     }
                     .padding(.top)
                 }
-                .background(.gray)
+                .background(Color(.systemGray6))
             }
         }
     }
@@ -90,7 +90,7 @@ struct HomeView: View {
                 .font(.system(size: 20))
                 .fontWeight(.medium)
                 .padding(.bottom, 10)
-            WorkoutCard(context: .home)   // parameters
+            // workout card
         }
         .padding()
     }
@@ -128,7 +128,7 @@ struct StreakCard: View {
         .background(Color.white)
         .overlay(
             RoundedRectangle(cornerRadius: 15)
-                .stroke(.black, lineWidth: 1)
+                .stroke(Color(.systemGray4), lineWidth: 1)
         )
         .cornerRadius(15)
     }

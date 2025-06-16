@@ -14,10 +14,10 @@ struct Workout: Identifiable {
 
 struct BrowseView: View {
     @Environment(\.dismiss) var dismiss
+    @StateObject private var viewModel = BrowseViewModel()
     @State private var search: String = ""
     @State private var browseType: String = "Exercises"
-    
-    
+        
     @State private var workouts: [Workout] = [
         Workout(name: "Push Workout"),
         Workout(name: "Pull Workout"),
@@ -33,6 +33,11 @@ struct BrowseView: View {
             browseList
         }
         .navigationBarBackButtonHidden(true)
+        .onAppear {
+            Task {
+                await viewModel.fetchExercises()
+            }
+        }
         
     }
     
@@ -70,32 +75,20 @@ struct BrowseView: View {
         .foregroundColor(.black)
     }
     
-    // TODO: private var search bar
     private var searchBar: some View {
         HStack {
             Image(systemName: "magnifyingglass")
+                .foregroundColor(.gray)
                 .padding(.leading, 8)
-            if browseType == "Exercises" {
-                TextField(
-                    "Search exercises...",
-                    text: $search,
-                    prompt: Text("Search exercises...")
-                )
-                .padding(.vertical, 10)
-                .background(Color.white)
-            } else {
-                TextField(
-                    "Search workouts...",
-                    text: $search,
-                    prompt: Text("Search workouts...")
-                )
-                .padding(.vertical, 10)
-                .background(Color.white)
-            }
+
+            TextField(
+                "Search exercises...",
+                text: $search
+            )
+            .foregroundColor(.primary)
+            .padding(.vertical, 10)
         }
-        .background(Color.white)
-        .font(.system(size: 16))
-        .fontWeight(.medium)
+        .background(Color(.systemGray6)) // Matches native search bar
         .cornerRadius(10)
         .padding(.horizontal)
         .padding(.bottom, 8)
@@ -105,12 +98,17 @@ struct BrowseView: View {
     private var browseList: some View {
         List {
             if browseType == "Exercises" {
-                ForEach(workouts) { workout in
-                    ExerciseCard(context: .browse)
-                        .id(workout.id) // Optional but helps
+                ForEach(viewModel.exercises) { exercise in
+                    ExerciseCard(context: .browse, browseCardData: exercise)
+                        .id(exercise.id) // Optional but helps
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
+                        .task {
+                                    await viewModel.fetchNextPageIfNeeded(currentItem: exercise)
+                                }
+                    
                 }
+                
             } else if browseType == "Workouts" {
                 ForEach(workouts) { workout in
                     WorkoutCard(context: .browse)
@@ -125,7 +123,7 @@ struct BrowseView: View {
         }
         .listStyle(.plain)
         .background(Color(.systemGroupedBackground))
-        .environment(\.editMode, .constant(.active)) // shows drag handles
+        .ignoresSafeArea(edges: [.bottom])
     }
     
     func deleteWorkout(_ workout: Workout) {
@@ -133,6 +131,7 @@ struct BrowseView: View {
             workouts.remove(at: index)
         }
     }
+    
 }
 
 #Preview {
