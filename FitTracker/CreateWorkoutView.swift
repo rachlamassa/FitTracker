@@ -15,8 +15,11 @@ struct CreateWorkoutView: View {
     @State private var numReps: Int = 1
     @State private var numMins: Int = 0
     @State private var numSecs: Int = 0
-    @State private var switchMetric = false
+    
+    @State private var workoutMetrics: [String: Int] = [:]
+    
     @State private var exerciseExists: Bool = false // temp bool
+    @State private var workout: Workout = Workout(name: "Push", type: "strength") // to accomodate hit and strength
     
     @State private var workouts: [Workouts] = [
         Workouts(name: "Push Workout"),
@@ -37,6 +40,7 @@ struct CreateWorkoutView: View {
             //        }
             selectedExercises
         }
+        .background(Color(.systemGroupedBackground))
         // TODO: list of exercises
     }
     
@@ -62,6 +66,7 @@ struct CreateWorkoutView: View {
         .padding()
         .fontWeight(.medium)
         .foregroundColor(.black)
+        .background(Color(.white))
     }
     
     private var workoutNameForm: some View {
@@ -73,95 +78,88 @@ struct CreateWorkoutView: View {
     }
     
     private var addExercise: some View {
-        VStack (spacing: 10){
-            // TODO: custom long button
+        VStack {
             if !exerciseExists {
-                Button {
-                    exerciseExists.toggle()
-                } label: {
-                    Text("+ Add Exercise")
-                        .fontWeight(.medium)
-                        .padding(20)
-                        .foregroundStyle(.white)
-                        .background(.black)
-                        .cornerRadius(20)
-                }
+                addExerciseButton
+                    .transition(.asymmetric(
+                        insertion: .scale.combined(with: .opacity),
+                        removal: .scale.combined(with: .opacity)
+                    ))
             } else {
-                ExerciseCard(context: .browse)
-                HStack {
-                    Spacer()
-                    if !switchMetric {
-                        Menu (String(numSets) + " Sets"){
-                            ForEach(numsArray, id: \.self) { num in
-                                Button {
-                                    numSets = num
-                                } label: {
-                                    Text(String(num))
-                                }
-                            }
-                        }
-                        .fontWeight(.medium)
-                        .padding()
-                    } else {
-                        Menu (String(numMins) + " min"){
-                            ForEach(numsArray, id: \.self) { num in
-                                Button {
-                                    numMins = num
-                                } label: {
-                                    Text(String(num))
-                                }
-                            }
-                        }
-                        .fontWeight(.medium)
-                        .padding()
-                    }
-                    Spacer()
-                    if !switchMetric {
-                        Menu (String(numReps) + " Reps"){
-                            ForEach(numsArray, id: \.self) { num in
-                                Button {
-                                    numReps = num
-                                } label: {
-                                    Text(String(num))
-                                }
-                            }
-                        }
-                        .fontWeight(.medium)
-                        .padding()
-                    } else {
-                        Menu (String(numSecs) + " sec"){
-                            ForEach(numsArray, id: \.self) { num in
-                                Button {
-                                    numSecs = num
-                                } label: {
-                                    Text(String(num))
-                                }
-                            }
-                        }
-                        .fontWeight(.medium)
-                        .padding()
-                    }
-                    Spacer()
-                    Button {
-                        switchMetric.toggle()
-                    } label: {
-                        Image(systemName: "shuffle")
-                    }
-                    Spacer()
-                    Button {
-                        exerciseExists.toggle()
-                        numSets = 1
-                        numReps = 1
-                    } label: {
-                        Text("+")
-                    }
-                    .fontWeight(.medium)
-                    .padding()
-                    Spacer()
-                }
+                exerciseInputSection
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .leading).combined(with: .opacity),
+                        removal: .move(edge: .trailing).combined(with: .opacity)
+                    ))
             }
         }
-        .frame(height: 100)
+        .padding(.horizontal)
+        .animation(.easeInOut(duration: 0.45), value: exerciseExists)
+    }
+    
+    private var addExerciseButton: some View {
+        Button {
+            withAnimation {
+                exerciseExists.toggle()
+            }
+        } label: {
+            Text("+ Add Exercise")
+                .fontWeight(.medium)
+                .padding(20)
+                .foregroundStyle(.white)
+                .background(.black)
+                .cornerRadius(20)
+        }
+    }
+    
+    private var exerciseInputSection: some View {
+        VStack(spacing: 10) {
+            ExerciseCard(context: .browse)
+            HStack {
+                Spacer()
+                Menu("\(numSets) Sets") {
+                    ForEach(numsArray, id: \.self) { num in
+                        Button {
+                            numSets = num
+                        } label: {
+                            Text("\(num)")
+                        }
+                    }
+                }
+                .fontWeight(.medium)
+                .padding()
+
+                Spacer()
+
+                Menu("\(numReps) Reps") {
+                    ForEach(numsArray, id: \.self) { num in
+                        Button {
+                            numReps = num
+                        } label: {
+                            Text("\(num)")
+                        }
+                    }
+                }
+                .fontWeight(.medium)
+                .padding()
+
+                Spacer()
+
+                Button {
+                    withAnimation {
+                        exerciseExists = false
+                        numSets = 1
+                        numReps = 1
+                    }
+                } label: {
+                    Text("+")
+                }
+                .fontWeight(.medium)
+                .padding()
+
+                Spacer()
+            }
+        }
     }
     
     private var selectedExercises: some View {
@@ -197,11 +195,14 @@ struct CreateWorkoutView: View {
                             }
                             .tint(Color.blue)
                         }
+                    
                         
                 }
             }
             .listStyle(.plain)
             .background(Color(.clear))
+            
+            
         }
     }
     
@@ -210,6 +211,7 @@ struct CreateWorkoutView: View {
                 workouts.remove(at: index)
             }
         }
+    
 }
 
 #Preview {
