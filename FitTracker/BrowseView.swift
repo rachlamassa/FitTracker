@@ -7,16 +7,27 @@
 
 import SwiftUI
 
-struct Workouts: Identifiable {
+struct Workouts: Identifiable, Equatable {
     let id = UUID()
     let name: String
+}
+
+enum BrowseType {
+    case exercises, workouts
+    
+    func typeStrings() -> String{
+        switch self {
+            case.exercises: return "Exercises"
+            case.workouts: return "Workouts"
+        }
+    }
 }
 
 struct BrowseView: View {
     @Environment(\.dismiss) var dismiss
     @StateObject private var viewModel = BrowseViewModel()
     @State private var search: String = ""
-    @State private var browseType: String = "Exercises"
+    @State private var browseType: BrowseType = .exercises
         
     @State private var workouts: [Workouts] = [
         Workouts(name: "Push Workout"),
@@ -57,16 +68,13 @@ struct BrowseView: View {
             }
             .font(.system(size: 16))
             HStack (spacing: 8) {
-                Text("Browse \(browseType)")
-                Button {
-                    if browseType == "Exercises" {
-                        browseType = "Workouts"
-                    } else {
-                        browseType = "Exercises"
-                    }
-                } label: {
+                Text("Browse \(browseType.typeStrings())")
+                Button(action: {
+                    browseType = (browseType == .exercises) ? .workouts : .exercises
+                }, label: {
                     Image(systemName: "shuffle")
-                }
+                })
+
             }
             .font(.system(size: 20))
         }
@@ -97,7 +105,7 @@ struct BrowseView: View {
     // TODO: view var for list of exercises/ workouts/ routines
     private var browseList: some View {
         List {
-            if browseType == "Exercises" {
+            if browseType == .exercises {
                 ForEach(viewModel.exercises) { exercise in
                     ExerciseCard(context: .browse, browseCardData: exercise)
                         .id(exercise.id) // Optional but helps
@@ -109,7 +117,7 @@ struct BrowseView: View {
                     
                 }
                 
-            } else if browseType == "Workouts" {
+            } else if browseType == .workouts {
                 ForEach(workouts) { workout in
                     WorkoutCard(context: .browse)
                         .id(workout.id) // Optional but helps
@@ -117,19 +125,10 @@ struct BrowseView: View {
                         .listRowSeparator(.hidden)
                 }
             }
-//            .onMove { indices, newOffset in
-//                workouts.move(fromOffsets: indices, toOffset: newOffset)
-//            }
         }
         .listStyle(.plain)
         .background(Color(.systemGroupedBackground))
         .ignoresSafeArea(edges: [.bottom])
-    }
-    
-    func deleteWorkout(_ workout: Workout) {
-        if let index = workouts.firstIndex(where: { $0.id == workout.id }) {
-            workouts.remove(at: index)
-        }
     }
     
 }

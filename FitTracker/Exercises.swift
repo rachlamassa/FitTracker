@@ -14,7 +14,7 @@ struct ExercisePage: Decodable {
     let exercises: [ExerciseDetails]
 }
 
-struct ExerciseDetails: Identifiable, Decodable {
+struct ExerciseDetails: Identifiable, Decodable, Equatable {
     var id: String { exerciseId }
     let exerciseId: String
     let name: String
