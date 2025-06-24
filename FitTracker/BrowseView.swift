@@ -29,13 +29,7 @@ struct BrowseView: View {
     @State private var search: String = ""
     @State private var browseType: BrowseType = .exercises
         
-    @State private var workouts: [Workouts] = [
-        Workouts(name: "Push Workout"),
-        Workouts(name: "Pull Workout"),
-        Workouts(name: "Legs"),
-        Workouts(name: "HIIT"),
-        Workouts(name: "Stretching")
-    ]
+    @State private var workouts: [Workouts] = []
     
     var body: some View {
         VStack {
@@ -97,38 +91,39 @@ struct BrowseView: View {
             .padding(.vertical, 10)
         }
         .background(Color(.systemGray6)) // Matches native search bar
-        .cornerRadius(10)
+        .cornerRadius(15)
         .padding(.horizontal)
         .padding(.bottom, 8)
     }
     
     // TODO: view var for list of exercises/ workouts/ routines
     private var browseList: some View {
-        List {
+        Group {
             if browseType == .exercises {
-                ForEach(viewModel.exercises) { exercise in
-                    ExerciseCard(context: .browse, browseCardData: exercise)
-                        .id(exercise.id) // Optional but helps
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
+                List(viewModel.exercises) { exercise in
+                    ExerciseCard(exercise: exercise)
+                        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                         .task {
-                                    await viewModel.fetchNextPageIfNeeded(currentItem: exercise)
-                                }
+                            await viewModel.fetchNextPageIfNeeded(currentItem: exercise)
+                        }
+                }
+            } else {
+                if workouts.isEmpty {                        VStack {
+                        Text("No workouts")
+                        .padding()
+                        Spacer()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .background(Color(.systemGroupedBackground))
                     
+                } else {
+                    List {
+                        Text("workout cards")
+                    }
                 }
                 
-            } else if browseType == .workouts {
-                ForEach(workouts) { workout in
-                    WorkoutCard(context: .browse)
-                        .id(workout.id) // Optional but helps
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                }
             }
         }
-        .listStyle(.plain)
-        .background(Color(.systemGroupedBackground))
-        .ignoresSafeArea(edges: [.bottom])
     }
     
 }

@@ -79,7 +79,7 @@ struct ExerciseSelectionView: View {
                     selectedExercise = exercise
                     showSelectExercise.toggle()
                 } label: {
-                    ExerciseCard(context: .browse, browseCardData: exercise)
+                    ExerciseCard(exercise: exercise)
                 }
                 .buttonStyle(.plain)
                 .listRowBackground(Color.clear)

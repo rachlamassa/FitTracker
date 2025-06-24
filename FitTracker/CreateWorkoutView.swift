@@ -92,6 +92,7 @@ struct CreateWorkoutView: View {
     private var workoutNameForm: some View {
         VStack(alignment: .leading) {
             Text("Workout Name")
+                .font(.system(size: 18))
             TextField("Enter workout name", text: $workoutName)
                 .padding(.leading, 10)
                 .frame(height: 45)
@@ -132,13 +133,13 @@ struct CreateWorkoutView: View {
                 .padding(20)
                 .foregroundStyle(.white)
                 .background(.black)
-                .cornerRadius(20)
+                .cornerRadius(15)
         }
     }
     
     private var exerciseInputSection: some View {
         VStack(spacing: 10) {
-            ExerciseCard(context: .create, createCardData: selectedExercise)
+            ExerciseCard(exercise: selectedExercise!)
             HStack {
                 Spacer()
                 Menu("\(numSets) Sets") {
@@ -197,7 +198,7 @@ struct CreateWorkoutView: View {
     private var selectedExercises: some View {
         VStack(alignment: .leading) {
             Text("Selected Workouts")
-                .font(.headline)
+                .font(.system(size: 18))
                 .padding(.horizontal)
 
             ScrollView {
