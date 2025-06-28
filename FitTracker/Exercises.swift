@@ -1,91 +1,51 @@
 import Foundation
 
-struct ExerciseAPIResponse: Decodable {
-    let success: Bool
-    let data: ExercisePage
-}
-
-struct ExercisePage: Decodable {
-    let previousPage: String?
-    let nextPage: String?
-    let totalPages: Int
-    let totalExercises: Int
-    let currentPage: Int
-    let exercises: [ExerciseDetails]
-}
-
-struct ExerciseDetails: Identifiable, Decodable, Equatable {
-    var id: String { exerciseId }
-    let exerciseId: String
-    let name: String
+struct Exercise: Identifiable, Decodable, Equatable {
+    let bodyPart: String
+    let equipment: String
     let gifUrl: String
-    let targetMuscles: [String]
-    let bodyParts: [String]
-    let equipments: [String]
+    let id: String
+    let name: String
+    let target: String
     let secondaryMuscles: [String]
     let instructions: [String]
-}
-
-struct Exercise: Identifiable, Decodable {
-    var id = UUID()
-    var exerciseDetails: ExerciseDetails
+    let description: String
+    let difficulty: String
+    let category: String
+    
+    var displayName: String {
+        name.capitalized
+    }
 }
 
 @MainActor
-class BrowseViewModel: ObservableObject {
-    @Published var exercises: [ExerciseDetails] = []
+class ExerciseViewModel: ObservableObject {
+    @Published var exercises: [Exercise] = []
     @Published var isLoading = false
-    private var nextPageURL: URL? = URL(string: "https://exercisedb-api.vercel.app/api/v1/exercises?offset=10&limit=10")
+
+    private let apiKey = "d57c8cd4b4mshcd3351f89f42301p1f6e30jsne88d8c92a6bb"
+    private let baseURL = URL(string: "https://exercisedb.p.rapidapi.com/exercises?limit=0&offset=0")!
 
     func fetchExercises() async {
-        guard let url = URL(string: "https://exercisedb-api.vercel.app/api/v1/exercises") else {
-            print("Invalid URL")
-            return
-        }
-
-        do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-
-            // Optional: print JSON
-            if let jsonString = String(data: data, encoding: .utf8) {
-                print("JSON Loaded:\n\(jsonString.prefix(300))...")
-            }
-
-            let decoded = try JSONDecoder().decode(ExerciseAPIResponse.self, from: data)
-            exercises = decoded.data.exercises
-            print("✅ Loaded \(exercises.count) exercises")
-        } catch {
-            print("❌ Fetching error:", error.localizedDescription)
-        }
-    }
-    
-    
-
-    func fetchNextPageIfNeeded(currentItem: ExerciseDetails?) async {
-        guard let currentItem = currentItem else { return }
-        guard let lastItem = exercises.last else { return }
-        
-        // Only trigger if we're near the end
-        if currentItem.exerciseId == lastItem.exerciseId {
-            await fetchMoreExercises()
-        }
-    }
-
-    func fetchMoreExercises() async {
         guard !isLoading else { return }
-        guard let url = nextPageURL else { return }
-
         isLoading = true
         defer { isLoading = false }
 
+        var request = URLRequest(url: baseURL)
+        request.httpMethod = "GET"
+        request.setValue(apiKey, forHTTPHeaderField: "X-RapidAPI-Key")
+        request.setValue("exercisedb.p.rapidapi.com", forHTTPHeaderField: "X-RapidAPI-Host")
+
         do {
-            let (data, _) = try await URLSession.shared.data(from: url)
-            let decoded = try JSONDecoder().decode(ExerciseAPIResponse.self, from: data)
-            exercises += decoded.data.exercises
-            nextPageURL = URL(string: decoded.data.nextPage ?? "")
+            let (data, _) = try await URLSession.shared.data(for: request)
+            if let raw = String(data: data, encoding: .utf8) {
+                print("💾 Raw JSON:\n\(raw.prefix(300))")
+            }
+            let decoded = try JSONDecoder().decode([Exercise].self, from: data)
+            self.exercises = decoded
+            print("✅ Loaded \(decoded.count) exercises")
         } catch {
-            print("❌ Pagination error:", error.localizedDescription)
+            print("❌ Error fetching exercises:", error.localizedDescription)
         }
     }
-    
 }

@@ -9,87 +9,69 @@ import SwiftUI
 
 struct ExerciseSelectionView: View {
     @Environment(\.dismiss) var dismiss
-    @Binding var selectedExercise: ExerciseDetails?
-    @Binding var showSelectExercise: Bool
-
-    @StateObject private var viewModel = BrowseViewModel()
+    @StateObject var viewModel = ExerciseViewModel()
     @State private var search: String = ""
-
+    @Binding var showSelectExercise: Bool
+    @Binding var selectedExercise: Exercise?
+    
+    
     var body: some View {
         VStack {
-            header
+            headerSection
             searchBar
-            exerciseList
+            browseList
         }
+        .navigationBarBackButtonHidden(true)
         .onAppear {
             Task {
                 await viewModel.fetchExercises()
             }
         }
-        .background(Color(.systemGroupedBackground))
+        
     }
-
-    private var header: some View {
-        HStack {
-            Button {
-                dismiss()
-            } label: {
-                HStack {
-                    Image(systemName: "chevron.left")
-                    Text("Back")
-                }
-            }
-            .font(.system(size: 16))
-
-            Spacer()
-
-            Text("Select Exercise")
-                .font(.system(size: 20))
-                .fontWeight(.medium)
-
-            Spacer()
-        }
+    
+    // TODO: view function for header
+    private var headerSection: some View {
+        Text("Browse Exercises")
+        .font(.system(size: 20))
         .padding()
-        .foregroundColor(.black)
-        .background(Color.white)
+        .fontWeight(.medium)
+        .foregroundColor(Color("tint_blue"))
     }
-
+    
     private var searchBar: some View {
         HStack {
             Image(systemName: "magnifyingglass")
                 .foregroundColor(.gray)
                 .padding(.leading, 8)
 
-            TextField("Search exercises...", text: $search)
-                .foregroundColor(.primary)
-                .padding(.vertical, 10)
+            TextField(
+                "Search exercises...",
+                text: $search
+            )
+            .foregroundColor(.primary)
+            .padding(.vertical, 10)
         }
-        .background(Color(.systemGray6))
-        .cornerRadius(10)
+        .background(Color(.systemGray6)) // Matches native search bar
+        .cornerRadius(15)
         .padding(.horizontal)
         .padding(.bottom, 8)
     }
-
-    private var exerciseList: some View {
-        List {
-            ForEach(viewModel.exercises.filter {
-                search.isEmpty ? true : $0.name.localizedCaseInsensitiveContains(search)
-            }) { exercise in
+    
+    // TODO: view var for list of exercises/ workouts/ routines
+    private var browseList: some View {
+        Group {
+            List(viewModel.exercises) { exercise in
                 Button {
                     selectedExercise = exercise
-                    showSelectExercise.toggle()
+                    showSelectExercise = false
                 } label: {
                     ExerciseCard(exercise: exercise)
                 }
-                .buttonStyle(.plain)
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                .task {
-                    await viewModel.fetchNextPageIfNeeded(currentItem: exercise)
-                }
+                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
         }
-        .listStyle(.plain)
-        .ignoresSafeArea(edges: .bottom)
     }
 }
+
+

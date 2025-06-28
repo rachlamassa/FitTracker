@@ -1,17 +1,17 @@
 //
-//  ExerciseCard.swift
+//  StrengthExerciseCard.swift
 //  FitTracker
 //
-//  Created by Rachael LaMassa on 6/10/25.
+//  Created by Rachael LaMassa on 6/27/25.
 //
 
 import SwiftUI
 
-struct ExerciseCard: View {
-    var exercise: Exercise
+struct StrengthExerciseCard: View {
+    var exercise: StrengthExerciseData
     var body: some View {
         HStack (spacing: 10){
-            AsyncImage(url: URL(string: exercise.gifUrl)) { phase in
+            AsyncImage(url: URL(string: exercise.exerciseData.gifUrl)) { phase in
                 switch phase {
                 case .empty:
                     ProgressView()
@@ -36,17 +36,22 @@ struct ExerciseCard: View {
             }
             .padding()
             VStack (alignment: .leading, spacing: 5){
-                Text(exercise.name)
+                Text(exercise.exerciseData.name)
                     .foregroundColor(Color("tint_blue"))
                     .fontWeight(.semibold)
-                Text(exercise.bodyPart)
-                    .foregroundColor(Color("ui_gray"))
-                    .padding(5)
-                    .background(Color(.systemGroupedBackground))
-                    .cornerRadius(10)
+                HStack {
+                    Text(exercise.sets > 1 ? "\(exercise.sets) Sets" : "\(exercise.sets) Set")
+                    Text(exercise.reps > 1 ? "\(exercise.reps) Reps" : "\(exercise.reps) Rep")
+                }
+                .foregroundColor(Color("ui_gray"))
+
                 
             }
             .padding(.trailing)
+            Spacer()
+            Text(exercise.weight == 0 ? "" : "\(exercise.weight) lbs")
+                .foregroundColor(Color("ui_gray"))
+                .padding(.trailing)
         }
         
         .padding(.vertical, 8)
@@ -60,5 +65,5 @@ struct ExerciseCard: View {
 }
 
 //#Preview {
-//    ExerciseCard()
+//    StrengthExerciseCard()
 //}

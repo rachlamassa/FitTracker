@@ -11,73 +11,37 @@ import SwiftUI
 
 struct HomeView: View {
     @State var notifications: Bool = true
-    @State private var affirmation: String = "affirmation here"
+    @State private var workouts: [Workout] = [Workout(name: "Push", exercises: [])]
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) { // no spacing here
-                headerSection(profileImage: Image(systemName: "person.circle")) // use your actual image here
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        greeting(message: "Good Morning!") // TODO: time dependent
-                        StreakCard()
-                            .padding(.horizontal)
-                        todaysWorkouts
-                        Spacer()
-                        Text(affirmation)
-                            .font(.system(size: 20))
-                        Spacer()
-                        navigationGrid
-                    }
-                    .padding(.top)
+                
+                VStack(spacing: 24) {
+                    greeting(message: "Good Morning!") // TODO: time dependent
+                    StreakCard()
+                        .padding([.horizontal, .bottom])
+                    todaysWorkouts
+                    Spacer()
+                    navigationTabBar()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Spacer()
                 }
+                .padding(.vertical)
+                //                }
                 .background(Color(.systemGray6))
-            }
+                .ignoresSafeArea(edges: [.bottom])
+            
         }
     }
     
-    private func headerSection(profileImage: Image) -> some View {
-        HStack {
-            Text("FitTracker")
-                .font(.system(size: 20))
-                .fontWeight(.medium)
-            Spacer()
-            Button {
-                // TODO: connect notifications
-                notifications.toggle()
-            } label: {
-                if !notifications {
-                    Image(systemName: "bell")
-                        .font(.system(size: 20))
-                } else {
-                    Image(systemName: "bell.fill")
-                        .font(.system(size: 20))
-                }
-            }
-            Button {
-                // TODO: nav to profile
-            } label: {
-                // TODO: profile image
-                profileImage
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 20, height: 20)
-                    .clipShape(Circle())
-            }
-        }
-        .padding()
-    }
+    
     
     private func greeting(message: String) -> some View {
         // TODO: time dependent messages
         VStack(alignment: .leading, spacing: 15) {
             Text(message)
-                .font(.system(size: 28))
-                .fontWidth(.standard)
-                .fontWeight(.medium)
+                .font(.title)
             Text("Ready to get fit?")
-                .font(.system(size: 16))
-                .fontWidth(.standard)
-                .fontWeight(.medium)
+                .font(.title2)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
@@ -85,22 +49,38 @@ struct HomeView: View {
     
     private var todaysWorkouts: some View {
         // TODO: title, workout card
-        VStack (alignment: .leading, spacing: 15) {
+        VStack (alignment: .leading, spacing: 0) {
             Text("Today's Workouts")    // TODO: based on how many
-                .font(.system(size: 20))
-                .fontWeight(.medium)
-                .padding(.bottom, 10)
+                .font(.title3)
+                .padding(.leading)
             // workout card
+            List (workouts) { workout in
+                StrengthWorkoutCard(workout: workout)
+                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
+            .padding(.top, -8)
         }
-        .padding()
     }
     
-    private var navigationGrid: some View {
-        HStack(spacing: 20){
-            NavigationButton(destination: AnyView(BrowseView()), image: "magnifyingglass", text: "Browse")
-            NavigationButton(destination: AnyView(BrowseView()), image: "magnifyingglass", text: "Browse")
+    
+}
+
+struct navigationTabBar: View {
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .frame(width: 44, height: 44)
+            Image(systemName: "play")
+                .frame(width: 44, height: 44)
+            Image(systemName: "plus")
+                .frame(width: 44, height: 44)
         }
-        .padding(.vertical)
+        .foregroundColor(.gray)
+        .background(Color(.white).opacity(0.45))
+        .cornerRadius(15)
+        .padding(.leading)
     }
 }
 
@@ -111,49 +91,22 @@ struct StreakCard: View {
         HStack {
             VStack(alignment: .leading) {
                 Text("Current Streak")
-                    .font(.system(size: 16))
-                    .fontWidth(.standard)
-                    .fontWeight(.medium)
+                    .font(.headline)
                 Text("7 days")
-                    .font(.system(size: 28))
-                    .fontWidth(.standard)
-                    .fontWeight(.medium)
+                    .font(.title)
             }
             Spacer()
             Image(systemName: "flame")
-                .font(.system(size: 36))
+                .font(.system(size: 44))
         }
         .padding()
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, minHeight: 75)
         .background(Color.white)
         .overlay(
             RoundedRectangle(cornerRadius: 15)
                 .stroke(Color(.systemGray4), lineWidth: 1)
         )
         .cornerRadius(15)
-    }
-}
-
-
-
-struct NavigationButton: View {
-    var destination: AnyView
-    var image: String
-    var text: String
-    var body: some View {
-        NavigationLink(destination: destination) {
-            HStack(spacing: 10) {
-                Image(systemName: image)
-                Text(text)
-            }
-            .font(.system(size: 20))
-            .fontWeight(.semibold)
-            .foregroundColor(.primary)
-            .padding(.vertical, 16)
-            .padding(.horizontal, 24)
-            .background(Color(.systemGray6))
-            .cornerRadius(10)
-        }
     }
 }
 

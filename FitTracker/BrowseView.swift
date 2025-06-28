@@ -25,18 +25,20 @@ enum BrowseType {
 
 struct BrowseView: View {
     @Environment(\.dismiss) var dismiss
-    @StateObject private var viewModel = BrowseViewModel()
+    @StateObject var viewModel = ExerciseViewModel()
     @State private var search: String = ""
     @State private var browseType: BrowseType = .exercises
         
     @State private var workouts: [Workouts] = []
     
     var body: some View {
-        VStack {
-            headerSection
+        VStack(spacing: 0) {
+            headerSectionBrowse
+                .padding(.bottom)
             searchBar
             browseList
         }
+        .background(Color(.systemGray6))
         .navigationBarBackButtonHidden(true)
         .onAppear {
             Task {
@@ -46,54 +48,45 @@ struct BrowseView: View {
         
     }
     
-    // TODO: view function for header
-    private var headerSection: some View {
+    private var headerSectionBrowse: some View {
         ZStack {
             HStack {
                 Button {
                     dismiss()
                 } label: {
-                    HStack {
                         Image(systemName: "chevron.left")
-                        Text("Back")
-                    }
                 }
                 Spacer()
-            }
-            .font(.system(size: 16))
-            HStack (spacing: 8) {
-                Text("Browse \(browseType.typeStrings())")
                 Button(action: {
                     browseType = (browseType == .exercises) ? .workouts : .exercises
                 }, label: {
                     Image(systemName: "shuffle")
                 })
-
             }
-            .font(.system(size: 20))
+            Text("Browse \(browseType.typeStrings())")
+                .font(.title)
         }
         .padding()
-        .fontWeight(.medium)
-        .foregroundColor(.black)
+        .foregroundColor(Color("tint_blue"))
     }
     
+    // TODO: functionality
     private var searchBar: some View {
         HStack {
             Image(systemName: "magnifyingglass")
-                .foregroundColor(.gray)
                 .padding(.leading, 8)
 
             TextField(
-                "Search exercises...",
+                "Search \(browseType.typeStrings())",
                 text: $search
             )
-            .foregroundColor(.primary)
             .padding(.vertical, 10)
         }
-        .background(Color(.systemGray6)) // Matches native search bar
+        .foregroundColor(.gray)
+        .background(Color(.white).opacity(0.45)) // Matches native search bar
         .cornerRadius(15)
         .padding(.horizontal)
-        .padding(.bottom, 8)
+        .padding(.bottom, 16)
     }
     
     // TODO: view var for list of exercises/ workouts/ routines
@@ -103,18 +96,19 @@ struct BrowseView: View {
                 List(viewModel.exercises) { exercise in
                     ExerciseCard(exercise: exercise)
                         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                        .task {
-                            await viewModel.fetchNextPageIfNeeded(currentItem: exercise)
-                        }
                 }
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .padding(.top, -8)
             } else {
-                if workouts.isEmpty {                        VStack {
+                if workouts.isEmpty {
+                    VStack {
                         Text("No workouts")
                         .padding()
                         Spacer()
                     }
                     .frame(maxWidth: .infinity)
-                    .background(Color(.systemGroupedBackground))
+                    .background(Color(.systemGray6))
                     
                 } else {
                     List {

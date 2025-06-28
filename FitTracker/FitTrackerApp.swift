@@ -25,7 +25,7 @@ struct FitTrackerApp: App {
 
     var body: some Scene {
         WindowGroup {
-            CreateWorkoutView()
+            BrowseView()
         }
         .modelContainer(sharedModelContainer)
     }
